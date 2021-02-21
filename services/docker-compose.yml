@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+    gateway:
+        command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0"
+        build:
+            context: ./gateway
+            dockerfile: Dockerfile
+        ports:
+          - 8000:8000
+        depends_on:
+          - db
+        volumes:
+          - ./gateway:/gateway
+
+    db:
+      image: postgres:12.4-alpine
+      environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=test_db
+      ports:
+        - 5432:5432
+
+    pgadmin:
+      image: dpage/pgadmin4
+      environment:
+        - PGADMIN_DEFAULT_EMAIL=pgadmin4@pgadmin.org
+        - PGADMIN_DEFAULT_PASSWORD=admin
+      ports:
+        - 5050:80
+      depends_on:
+        - db
