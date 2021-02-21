@@ -13,6 +13,18 @@ services:
         volumes:
           - ./gateway:/gateway
 
+    users:
+        command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0"
+        build:
+            context: ./users
+            dockerfile: Dockerfile
+        ports:
+          - 8001:8000
+        depends_on:
+          - db
+        volumes:
+          - ./users:/users
+
     db:
       image: postgres:12.4-alpine
       environment:
