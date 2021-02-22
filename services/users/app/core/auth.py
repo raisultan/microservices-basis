@@ -9,7 +9,6 @@ from .config import settings
 
 class AuthService:
     ALGORITHM: Final[str] = 'HS256'
-    PWD_CONTEXT = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
     @classmethod
     def create_access_token(
@@ -29,9 +28,12 @@ class AuthService:
 
     @classmethod
     def verify_password(cls, raw_password: str, hashed_password: str) -> bool:
-        return cls.PWD_CONTEXT.verify(raw_password, hashed_password)
-
+        return cls._get_pwd_context().verify(raw_password, hashed_password)
 
     @classmethod
     def get_password_hash(cls, password: str) -> str:
-        return cls.PWD_CONTEXT.hash(password)
+        return cls._get_pwd_context().hash(password)
+
+    @staticmethod
+    def _get_pwd_context() -> CryptContext:
+        return CryptContext(schemes=['bcrypt'], deprecated='auto')
