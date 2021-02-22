@@ -27,6 +27,7 @@ services:
           - db
         volumes:
           - ./gateway:/gateway
+        <<: *server-tmpl
 
     users:
         command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0"
@@ -43,19 +44,14 @@ services:
 
     db:
       image: postgres:12.4-alpine
-      environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=test_db
       ports:
         - 5432:5432
+      <<: *server-tmpl
 
     pgadmin:
       image: dpage/pgadmin4
-      environment:
-        - PGADMIN_DEFAULT_EMAIL=pgadmin4@pgadmin.org
-        - PGADMIN_DEFAULT_PASSWORD=admin
       ports:
         - 5050:80
       depends_on:
         - db
+      <<: *server-tmpl
