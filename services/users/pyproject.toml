@@ -14,10 +14,19 @@ alembic = "1.4.3"
 psycopg2-binary = "2.8.6"
 python-dotenv = "0.15.0"
 PyJWT = "2.0.1"
-passlib = "1.7.4"
-python-jose = {extras = ["cryptography"], version = "^3.2.0"}
+python-jose = {extras = ["cryptography"], version = "3.2.0"}
+email-validator = "1.1.2"
+pydantic = "1.7.3"
+passlib = {extras = ["bcrypt"], version = "1.7.4"}
+bcrypt = "3.2.0"
 
 [tool.poetry.dev-dependencies]
+
+[tool.isort]
+line_length = 100
+multi_line_output = 3
+reverse_relative = true
+skip_glob = "**/migrations"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
