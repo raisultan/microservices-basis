@@ -12,7 +12,7 @@ router = APIRouter()
 def get_access_token(
         db: Session = Depends(deps.get_db),
         *,
-        user: schemas.UserCreate,
+        user: schemas.UserLoginForm,
         Authorize: AuthJWT = Depends(),
 ) -> dict:
     user = crud.user.authenticate(
