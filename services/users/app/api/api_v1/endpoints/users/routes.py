@@ -17,7 +17,7 @@ def read_users(
         db: Session = Depends(deps.get_db),
         skip: int = 0,
         limit: int = 100,
-        current_user: models.User = Depends(deps.get_current_active_superuser),
+        current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     users = crud.user.get_multi(db, skip=skip, limit=limit)
     return users
@@ -28,7 +28,7 @@ def create_user(
         *,
         db: Session = Depends(deps.get_db),
         user_in: schemas.UserCreate,
-        current_user: models.User = Depends(deps.get_current_active_superuser),
+        current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     user = crud.user.get_by_email(db, email=user_in.email)
     if user:
@@ -97,8 +97,8 @@ def read_user_by_id(
     user = crud.user.get(db, id=user_id)
     if user == current_user:
         return user
-    if not crud.user.is_superuser(current_user):
-        raise HTTPException(status_code=400, detail=UsersAPIError.NOT_SUPERUSER)
+    if not crud.user.is_active(current_user):
+        raise HTTPException(status_code=400, detail=UsersAPIError.INACTIVE)
     return user
 
 

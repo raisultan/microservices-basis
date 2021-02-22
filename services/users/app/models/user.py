@@ -12,4 +12,3 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
 
     is_active = Column(Boolean(), default=True)
-    is_superuser = Column(Boolean(), default=False)

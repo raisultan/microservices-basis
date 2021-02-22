@@ -18,7 +18,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             hashed_password=AuthService.get_password_hash(obj_in.password),
             first_name=obj_in.first_name,
             last_name=obj_in.last_name,
-            is_superuser=obj_in.is_superuser,
         )
         db.add(db_obj)
         db.commit()
@@ -26,7 +25,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return db_obj
 
     def update(
-        self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]
+            self,
+            db: Session,
+            *,
+            db_obj: User,
+            obj_in: Union[UserUpdate, Dict[str, Any]],
     ) -> User:
         if isinstance(obj_in, dict):
             update_data = obj_in
@@ -48,9 +51,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def is_active(self, user: User) -> bool:
         return user.is_active
-
-    def is_superuser(self, user: User) -> bool:
-        return user.is_superuser
 
 
 user = CRUDUser(User)
