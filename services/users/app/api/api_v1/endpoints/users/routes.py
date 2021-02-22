@@ -2,10 +2,11 @@ from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
+from fastapi_jwt_auth import AuthJWT
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
 
-from app import crud, models, schemas
+from app import crud, schemas
 from app.api.dependencies import deps
 
 from .errors import UsersAPIError
@@ -18,8 +19,10 @@ def read_users(
         db: Session = Depends(deps.get_db),
         skip: int = 0,
         limit: int = 100,
-        current_user: models.User = Depends(deps.get_current_active_user),
+        Authorize: AuthJWT = Depends(),
 ) -> Any:
+    Authorize.jwt_required()
+
     users = crud.user.get_multi(db, skip=skip, limit=limit)
     return users
 
@@ -32,8 +35,9 @@ def update_user_me(
         first_name: str = Body(None),
         last_name: str = Body(None),
         email: EmailStr = Body(None),
-        current_user: models.User = Depends(deps.get_current_active_user),
+        Authorize: AuthJWT = Depends(),
 ) -> Any:
+    current_user = Authorize.get_jwt_subject()
     current_user_data = jsonable_encoder(current_user)
     user_in = schemas.UserUpdate(**current_user_data)
     if password is not None:
@@ -51,9 +55,12 @@ def update_user_me(
 @router.get("/me", response_model=schemas.User)
 def read_user_me(
         db: Session = Depends(deps.get_db),
-        current_user: models.User = Depends(deps.get_current_active_user),
+        Authorize: AuthJWT = Depends(),
 ) -> Any:
-    return current_user
+    Authorize.jwt_required()
+
+    current_user = Authorize.get_jwt_subject()
+    return {"user": current_user}
 
 
 @router.post("/", response_model=schemas.User)
@@ -81,9 +88,13 @@ def create_user(
 @router.get("/{user_id}", response_model=schemas.User)
 def read_user_by_id(
         user_id: int,
-        current_user: models.User = Depends(deps.get_current_active_user),
+        Authorize: AuthJWT = Depends(),
         db: Session = Depends(deps.get_db),
 ) -> Any:
+    Authorize.jwt_required()
+
+    current_user = Authorize.get_jwt_subject()
+
     user = crud.user.get(db, id=user_id)
     if user == current_user:
         return user
@@ -98,8 +109,10 @@ def update_user(
         db: Session = Depends(deps.get_db),
         user_id: int,
         user_in: schemas.UserUpdate,
-        current_user: models.User = Depends(deps.get_current_active_user),
+        Authorize: AuthJWT = Depends(),
 ) -> Any:
+    Authorize.jwt_required()
+
     user = crud.user.get(db, id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail=UsersAPIError.NOT_FOUND)
