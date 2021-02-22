@@ -13,13 +13,13 @@ FastAPI-SQLAlchemy = "0.2.1"
 alembic = "1.4.3"
 psycopg2-binary = "2.8.6"
 python-dotenv = "0.15.0"
-PyJWT = "2.0.1"
 python-jose = {extras = ["cryptography"], version = "3.2.0"}
 email-validator = "1.1.2"
 pydantic = "1.7.3"
 passlib = {extras = ["bcrypt"], version = "1.7.4"}
 bcrypt = "3.2.0"
 python-multipart = "0.0.5"
+fastapi-jwt-auth = "0.5.0"
 
 [tool.poetry.dev-dependencies]
 
