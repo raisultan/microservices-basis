@@ -10,7 +10,6 @@ x-server-tmpl: &server-tmpl
     POSTGRES_PASSWORD: postgres
     POSTGRES_DB: test_db
     DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432
-    PGADMIN_LISTEN_PORT: 5050
     PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
     PGADMIN_DEFAULT_PASSWORD: admin
 
