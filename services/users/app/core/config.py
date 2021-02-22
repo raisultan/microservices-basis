@@ -1,51 +1,21 @@
 import secrets
-from typing import Any, Dict, List, Optional, Union
+from typing import Optional
 
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+from pydantic import BaseSettings, PostgresDsn
 
 
 class Settings(BaseSettings):
-    API_V1_STR: str = '/api'
+    API_V1_STR: str = '/api_v1'
     SECRET_KEY: str = secrets.token_urlsafe(32)
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
-    SERVER_NAME: str
-    SERVER_HOST: AnyHttpUrl
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
-
-    @validator("BACKEND_CORS_ORIGINS", pre=True)
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
-            return v
-        raise ValueError(v)
-
     PROJECT_NAME: str
 
     POSTGRES_SERVER: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
-    SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
-
-    @validator("SQLALCHEMY_DATABASE_URI", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
-        if isinstance(v, str):
-            return v
-        return PostgresDsn.build(
-            scheme="postgresql",
-            user=values.get("POSTGRES_USER"),
-            password=values.get("POSTGRES_PASSWORD"),
-            host=values.get("POSTGRES_SERVER"),
-            path=f"/{values.get('POSTGRES_DB') or ''}",
-        )
-
-    @validator("EMAILS_FROM_NAME")
-    def get_project_name(cls, v: Optional[str], values: Dict[str, Any]) -> str:
-        if not v:
-            return values["PROJECT_NAME"]
-        return v
+    DATABASE_URL: str
 
     class Config:
         case_sensitive = True
