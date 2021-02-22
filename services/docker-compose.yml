@@ -1,5 +1,20 @@
 version: '3.7'
 
+x-server-tmpl: &server-tmpl
+  environment:
+    PROJECT_NAME: users-microservice
+    SECRET_KEY: e0e5f53b239df3dc39517c34ae0a1c09d1f5d181dfac1578d379a4a5ee3e0ef5
+    USERS_OPEN_REGISTRATION: 'True'
+    POSTGRES_SERVER: db
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: test_db
+    DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432
+    PGADMIN_LISTEN_PORT: 5050
+    PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+    PGADMIN_DEFAULT_PASSWORD: admin
+
+
 services:
     gateway:
         command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0"
@@ -24,6 +39,7 @@ services:
           - db
         volumes:
           - ./users:/users
+        <<: *server-tmpl
 
     db:
       image: postgres:12.4-alpine
