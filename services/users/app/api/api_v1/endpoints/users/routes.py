@@ -6,8 +6,8 @@ from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
-from app.api import deps
-from app.core.config import settings
+from app.api.dependencies import deps
+from .errors import UsersAPIError
 
 router = APIRouter()
 
@@ -19,9 +19,6 @@ def read_users(
         limit: int = 100,
         current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
-    """
-    Retrieve users.
-    """
     users = crud.user.get_multi(db, skip=skip, limit=limit)
     return users
 
@@ -33,15 +30,9 @@ def create_user(
         user_in: schemas.UserCreate,
         current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
-    """
-    Create new user.
-    """
     user = crud.user.get_by_email(db, email=user_in.email)
     if user:
-        raise HTTPException(
-            status_code=400,
-            detail="The user with this username already exists in the system.",
-        )
+        raise HTTPException(status_code=400, detail=UsersAPIError.ALREADY_EXISTS)
     user = crud.user.create(db, obj_in=user_in)
     return user
 
@@ -55,9 +46,6 @@ def update_user_me(
         email: EmailStr = Body(None),
         current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
-    """
-    Update own user.
-    """
     current_user_data = jsonable_encoder(current_user)
     user_in = schemas.UserUpdate(**current_user_data)
     if password is not None:
@@ -75,9 +63,6 @@ def read_user_me(
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
-    """
-    Get current user.
-    """
     return current_user
 
 
@@ -90,15 +75,9 @@ def create_user_open(
         first_name: str = Body(None),
         last_name: str = Body(None),
 ) -> Any:
-    """
-    Create new user without the need to be logged in.
-    """
     user = crud.user.get_by_email(db, email=email)
     if user:
-        raise HTTPException(
-            status_code=400,
-            detail="The user with this username already exists in the system",
-        )
+        raise HTTPException(status_code=400, detail=UsersAPIError.ALREADY_EXISTS)
     user_in = schemas.UserCreate(
         password=password,
         email=email,
@@ -115,16 +94,11 @@ def read_user_by_id(
         current_user: models.User = Depends(deps.get_current_active_user),
         db: Session = Depends(deps.get_db),
 ) -> Any:
-    """
-    Get a specific user by id.
-    """
     user = crud.user.get(db, id=user_id)
     if user == current_user:
         return user
     if not crud.user.is_superuser(current_user):
-        raise HTTPException(
-            status_code=400, detail="The user doesn't have enough privileges"
-        )
+        raise HTTPException(status_code=400, detail=UsersAPIError.NOT_SUPERUSER)
     return user
 
 
@@ -136,14 +110,8 @@ def update_user(
         user_in: schemas.UserUpdate,
         current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
-    """
-    Update a user.
-    """
     user = crud.user.get(db, id=user_id)
     if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user with this username does not exist in the system",
-        )
+        raise HTTPException(status_code=404, detail=UsersAPIError.NOT_FOUND)
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
