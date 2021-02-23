@@ -19,7 +19,7 @@ services:
             context: ./gateway
             dockerfile: Dockerfile
         ports:
-          - 8000:8000
+          - 8001:8000
         depends_on:
           - db
         volumes:
@@ -31,8 +31,6 @@ services:
         build:
             context: ./users
             dockerfile: Dockerfile
-        ports:
-          - 8001:8000
         depends_on:
           - db
         volumes:
