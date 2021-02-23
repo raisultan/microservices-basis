@@ -15,6 +15,8 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = 'gateway-microservice'
 
+    USERS_SERVICE_URL: str = 'http://users:8000'
+
     POSTGRES_SERVER: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
