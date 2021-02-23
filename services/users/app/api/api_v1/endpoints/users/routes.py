@@ -20,7 +20,7 @@ def read_users(
         limit: int = 100,
         current_user: schemas.User = Depends(deps.get_current_active_user),
 ) -> Any:
-    users = crud.user.get_multi(db, skip=skip, limit=limit)
+    users = crud.user.read_multi(db, skip=skip, limit=limit)
     return users
 
 
@@ -33,7 +33,7 @@ def create_user(
         first_name: str = Body(None),
         last_name: str = Body(None),
 ) -> Any:
-    user = crud.user.get_by_email(db, email=email)
+    user = crud.user.read_by_email(db, email=email)
     if user:
         raise HTTPException(status_code=400, detail=UsersAPIError.ALREADY_EXISTS)
     user_in = schemas.UserCreate(
@@ -85,7 +85,7 @@ def read_user_by_id(
         current_user: schemas.User = Depends(deps.get_current_active_user),
         db: Session = Depends(deps.get_db),
 ) -> Any:
-    user = crud.user.get(db, id=user_id)
+    user = crud.user.read(db, id=user_id)
     if user == current_user:
         return user
     if not crud.user.is_active(current_user):
@@ -101,8 +101,21 @@ def update_user(
         user_in: schemas.UserUpdate,
         current_user: schemas.User = Depends(deps.get_current_active_user),
 ) -> Any:
-    user = crud.user.get(db, id=user_id)
+    user = crud.user.read(db, id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail=UsersAPIError.NOT_FOUND)
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
+
+
+@router.delete("/{user_id}", status_code=204)
+def delete_user(
+        *,
+        db: Session = Depends(deps.get_db),
+        user_id: int,
+        current_user: schemas.User = Depends(deps.get_current_active_user),
+) -> Any:
+    user = crud.user.read(db, id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail=UsersAPIError.NOT_FOUND)
+    user = crud.user.delete(db, db_obj_id=user_id)
