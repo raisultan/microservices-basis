@@ -1,7 +1,7 @@
 import aiohttp
 import async_timeout
 
-from config import settings
+from app.config import settings
 
 
 async def make_request(
