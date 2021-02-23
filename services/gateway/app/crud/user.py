@@ -8,11 +8,8 @@ from app.services import AuthService
 
 
 class CRUDUser(CRUDBase[User]):
-    def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
-        return db.query(User).filter(User.email == email).first()
-
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
-        user = self.get_by_email(db, email=email)
+        user = db.query(User).filter(User.email == email).first()
         if not user:
             return None
         if not AuthService.verify_password(password, user.hashed_password):
