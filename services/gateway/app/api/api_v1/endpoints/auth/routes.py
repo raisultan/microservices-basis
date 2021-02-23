@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, schemas
 from app.api.dependencies import deps
+from .errors import AuthError
 
 router = APIRouter()
 
@@ -21,9 +22,9 @@ def get_access_token(
         password=user.password,
     )
     if not user:
-        raise HTTPException(status_code=400, detail='Incorrect email or password')
+        raise HTTPException(status_code=400, detail=AuthError.INCORRECT_CREDS)
     elif not crud.user.is_active(user):
-        raise HTTPException(status_code=400, detail='Inactive user')
+        raise HTTPException(status_code=400, detail=AuthError.INACTIVE_USER)
 
     access_token = Authorize.create_access_token(subject=user.email)
     refresh_token = Authorize.create_refresh_token(subject=user.email)
