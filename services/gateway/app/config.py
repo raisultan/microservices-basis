@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     AUTHJWT_SECRET_KEY: str
     AUTHJWT_ACCESS_TOKEN_EXPIRES: Union[int, timedelta] = timedelta(days=5)
+    GATEWAY_TIMEOUT: int = 59
 
     PROJECT_NAME: str = 'gateway-microservice'
 
