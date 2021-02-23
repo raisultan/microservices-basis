@@ -24,7 +24,7 @@ def get_current_user(
     Authorize.jwt_required()
 
     user_email = Authorize.get_jwt_subject()
-    user = crud.user.get_by_email(db, email=user_email)
+    user = crud.user.read_by_email(db, email=user_email)
 
     if not user:
         raise HTTPException(status_code=404, detail=DBError.USER_NOT_FOUND)
