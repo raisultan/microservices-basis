@@ -19,16 +19,5 @@ class UserUpdate(UserBase):
     password: Optional[str] = None
 
 
-class UserInDBBase(UserBase):
+class UserRead(UserBase):
     id: Optional[int] = None
-
-    class Config:
-        orm_mode = True
-
-
-class User(UserInDBBase):
-    pass
-
-
-class UserInDB(UserInDBBase):
-    hashed_password: str
