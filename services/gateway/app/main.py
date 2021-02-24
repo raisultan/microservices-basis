@@ -19,9 +19,21 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
     path='/api_v1/users',
     status_code=status.HTTP_200_OK,
     service_url=settings.USERS_SERVICE_URL,
-    response_schema='app.schemas.User',
+    response_model='app.schemas.User',
+    is_response_list=True,
 )
 async def read_users(request: Request, response: Response) -> Any:
+    pass
+
+
+@gw_route(
+    request_method=app.post,
+    path='/api_v1/users',
+    status_code=status.HTTP_201_CREATED,
+    service_url=settings.USERS_SERVICE_URL,
+    response_model='app.schemas.User',
+)
+async def create_user(request: Request, response: Response) -> Any:
     pass
 
 
