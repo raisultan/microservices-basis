@@ -1,5 +1,6 @@
 import functools
 from importlib import import_module
+from json import JSONDecodeError
 from typing import Any, List
 
 from aiohttp.client_exceptions import ClientConnectorError, ContentTypeError
@@ -14,18 +15,18 @@ def gw_route(
         status_code: int,
         service_url: str,
         post_processing_func: str = None,
-        response_schema: str = None,
-        is_response_list: bool = False
+        response_model: str = None,
+        is_response_list: bool = False,
 ) -> Any:
-    if response_schema:
-        response_schema = import_function(response_schema)
+    if response_model:
+        response_model = import_function(response_model)
         if is_response_list:
-            response_schema = List[response_schema]
+            response_model = List[response_model]
 
     app_any = request_method(
         path,
         status_code=status_code,
-        response_model=response_schema,
+        response_model=response_model,
     )
 
     def wrapper(f):
@@ -37,13 +38,18 @@ def gw_route(
             method = scope['method'].lower()
             path = scope['path']
 
+            try:
+                request_body = await request.json()
+            except JSONDecodeError:
+                request_body = {}
+
             url = f'{service_url}{path}'
             try:
                 resp_data, status_code_from_service = await make_request(
                     url=url,
                     method=method,
-                    data={},
-                    headers={},
+                    data=request_body,
+                    headers={'authorization': dict(request.headers).get('authorization') or ''},
                 )
             except ClientConnectorError:
                 raise HTTPException(
@@ -56,6 +62,11 @@ def gw_route(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail='Service error.',
                     headers={'WWW-Authenticate': 'Bearer'},
+                )
+            if status_code_from_service != status_code:
+                raise HTTPException(
+                    status_code=status_code_from_service,
+                    detail=resp_data.get('detail'),
                 )
 
             response.status_code = status_code_from_service
