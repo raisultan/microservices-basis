@@ -24,7 +24,7 @@ def read_users(
     return users
 
 
-@router.post("/", response_model=schemas.User)
+@router.post("/", response_model=schemas.UserCreate)
 def create_user(
         *,
         db: Session = Depends(deps.get_db),
@@ -46,7 +46,7 @@ def create_user(
     return user
 
 
-@router.put("/me", response_model=schemas.User)
+@router.put("/me", response_model=schemas.UserUpdate)
 def update_user_me(
         *,
         db: Session = Depends(deps.get_db),
@@ -93,7 +93,7 @@ def read_user_by_id(
     return user
 
 
-@router.put("/{user_id}", response_model=schemas.User)
+@router.put("/{user_id}", response_model=schemas.UserUpdate)
 def update_user(
         *,
         db: Session = Depends(deps.get_db),
