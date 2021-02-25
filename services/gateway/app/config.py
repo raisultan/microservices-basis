@@ -11,11 +11,13 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     AUTHJWT_SECRET_KEY: str
     AUTHJWT_ACCESS_TOKEN_EXPIRES: Union[int, timedelta] = timedelta(days=5)
-    GATEWAY_TIMEOUT: int = 59
+    GATEWAY_TIMEOUT: int = 5
 
     PROJECT_NAME: str = 'gateway-microservice'
 
     USERS_SERVICE_URL: str = 'http://users:8000'
+
+    SERVICE_ERROR_RESPONSE_DETAIL_KEY: str = 'detail'
 
     POSTGRES_SERVER: str
     POSTGRES_USER: str

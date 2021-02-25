@@ -1,5 +1,4 @@
 import functools
-from importlib import import_module
 from json import JSONDecodeError
 from typing import Any, List
 
@@ -7,6 +6,9 @@ from aiohttp.client_exceptions import ClientConnectorError, ContentTypeError
 from fastapi import HTTPException, Request, Response, status
 
 from app.network import make_request
+from app.config import settings
+from .errors import GWRouteError
+from .utils import import_function
 
 
 def gw_route(
@@ -29,44 +31,42 @@ def gw_route(
         response_model=response_model,
     )
 
-    def wrapper(f):
+    def wrapper(func: Any) -> Any:
         @app_any
-        @functools.wraps(f)
-        async def inner(request: Request, response: Response, **kwargs):
+        @functools.wraps(func)
+        async def inner(request: Request, response: Response, **kwargs) -> Any:
             scope = request.scope
 
             method = scope['method'].lower()
-            path = scope['path']
+            url = f'{service_url}{scope["path"]}'
+            headers = {'authorization': dict(request.headers).get('authorization') or ''}
 
             try:
-                request_body = await request.json()
+                data = await request.json()
             except JSONDecodeError:
-                request_body = {}
+                data = {}
 
-            url = f'{service_url}{path}'
             try:
                 resp_data, status_code_from_service = await make_request(
                     url=url,
                     method=method,
-                    data=request_body,
-                    headers={'authorization': dict(request.headers).get('authorization') or ''},
+                    headers=headers,
+                    data=data,
                 )
             except ClientConnectorError:
                 raise HTTPException(
                     status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                    detail='Service is unavailable.',
-                    headers={'WWW-Authenticate': 'Bearer'},
+                    detail=GWRouteError.SERVICE_UNAVAILABLE,
                 )
             except ContentTypeError:
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail='Service error.',
-                    headers={'WWW-Authenticate': 'Bearer'},
+                    detail=GWRouteError.SERVICE_ERROR,
                 )
             if status_code_from_service != status_code:
                 raise HTTPException(
                     status_code=status_code_from_service,
-                    detail=resp_data.get('detail'),
+                    detail=resp_data.get(settings.SERVICE_ERROR_RESPONSE_DETAIL_KEY),
                 )
 
             response.status_code = status_code_from_service
@@ -81,9 +81,3 @@ def gw_route(
             return resp_data
 
     return wrapper
-
-
-def import_function(method_path: str) -> Any:
-    module, method = method_path.rsplit('.', 1)
-    mod = import_module(module)
-    return getattr(mod, method, lambda *args, **kwargs: None)
