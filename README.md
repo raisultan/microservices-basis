@@ -32,6 +32,8 @@ It implements custom wrapper on FastAPI route, that gives opportunity to central
 
 Gateway itself implements centralized JWT authentication by providing endpoints to fetch `access` and `refresh` tokens. In addition it has an endpoint to refresh expired `access-token`.
 
+![diagram](diagrams/api_gateway.png)
+
 ## How to use
 
 ```
