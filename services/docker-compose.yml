@@ -27,7 +27,7 @@ services:
         <<: *server-tmpl
 
     users:
-        command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0"
+        command: sh -c "alembic upgrade head && uvicorn app.main:app --reload --host 0.0.0.0"
         build:
             context: ./users
             dockerfile: Dockerfile
