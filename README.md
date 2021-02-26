@@ -15,7 +15,7 @@ It includes:
 - response post-processing
 - CRUD for Users application
 
-Existing functionality can be scaled by adding new services and scaling the gateway itself. Gateway microservice can be scaled with adding:
+Existing functionality can be scaled by adding new services and scaling the gateway itself. Gateway microservice can be scaled by adding:
 - response caching
 - request pre-processing/data normalization
 - response post-processing
@@ -28,6 +28,6 @@ Existing functionality can be scaled by adding new services and scaling the gate
 > Little synopsis on gateway approach can be found [here](https://www.notion.so/Auth-microservice-central-based-f53ca23494de40e49bfa0067ce570fb1)
 
 Current implementation of gateway microservice is decently simple. It knows response schemas, paths and expected status codes of all other microservices.
-It implements custom wrapper on FastAPI route, that gives opportunity to centralize all requests and bind endpoints. Implementation of custom route is based on `aiohttp` core. So the gateway just decomposes received request and composes new one with custom additions and adjustments. Finally it makes asynchronous request to internally available microservice and receives its response, if there is one, if not gateway handles this situation by returning `503 - Service unavailable`. Response received from service can be post processed if needed.
+It implements custom wrapper on FastAPI route, that gives opportunity to centralize all requests and bind endpoints. Implementation of custom route is based on `aiohttp` core. So the gateway just decomposes received request and composes new one with custom additions and adjustments. Finally, it makes asynchronous request to internally available microservice and receives its response, if there is one, if not gateway handles this situation by returning `503 - Service unavailable`. Response received from service can be post processed if needed.
 
 Gateway itself implements centralized JWT authentication by providing endpoints to fetch `access` and `refresh` tokens. In addition it has an endpoint to refresh expired `access-token`.
