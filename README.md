@@ -31,3 +31,18 @@ Current implementation of gateway microservice is decently simple. It knows resp
 It implements custom wrapper on FastAPI route, that gives opportunity to centralize all requests and bind endpoints. Implementation of custom route is based on `aiohttp` core. So the gateway just decomposes received request and composes new one with custom additions and adjustments. Finally, it makes asynchronous request to internally available microservice and receives its response, if there is one, if not gateway handles this situation by returning `503 - Service unavailable`. Response received from service can be post processed if needed.
 
 Gateway itself implements centralized JWT authentication by providing endpoints to fetch `access` and `refresh` tokens. In addition it has an endpoint to refresh expired `access-token`.
+
+## How to use
+
+```
+docker-compose build
+docker-compose run --rm users alembic upgrade head
+docker-compose up
+```
+
+There is PGAdmin on `:5050` port for convenience of monitoring the data.
+API docs are on `0.0.0.0:8001/docs` or ``0.0.0.0:8001/redoc`
+
+## Testing
+
+Link to postman collection for testing each existing endpoint: https://www.getpostman.com/collections/ad9858b74404041fb58f
