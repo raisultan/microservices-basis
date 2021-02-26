@@ -41,8 +41,8 @@ docker-compose up
 ```
 
 There is PGAdmin on `:5050` port for convenience of monitoring the data.
-API docs are on `0.0.0.0:8001/docs` or ``0.0.0.0:8001/redoc`
+API docs are on `0.0.0.0:8001/docs` or `0.0.0.0:8001/redoc`
 
 ## Testing
 
-Link to postman collection for testing each existing endpoint: https://www.getpostman.com/collections/ad9858b74404041fb58f
+Link to postman collection for testing each existing endpoint: https://www.getpostman.com/collections/ad9858b74404041fb58f. It consists of JSON content that needs to be imported to your Postman application.
