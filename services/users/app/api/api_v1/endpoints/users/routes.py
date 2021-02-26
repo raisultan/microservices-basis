@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[schemas.User])
-def read_users(
+async def read_users(
         db: Session = Depends(deps.get_db),
         skip: int = 0,
         limit: int = 100,
@@ -25,7 +25,7 @@ def read_users(
 
 
 @router.post("/", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
-def create_user(
+async def create_user(
         *,
         db: Session = Depends(deps.get_db),
         password: str = Body(...),
@@ -50,7 +50,7 @@ def create_user(
 
 
 @router.put("/me", response_model=schemas.User)
-def update_user_me(
+async def update_user_me(
         *,
         db: Session = Depends(deps.get_db),
         password: str = Body(None),
@@ -75,7 +75,7 @@ def update_user_me(
 
 
 @router.get("/me", response_model=schemas.User)
-def read_user_me(
+async def read_user_me(
         db: Session = Depends(deps.get_db),
         current_user: schemas.User = Depends(deps.get_current_active_user),
 ) -> Any:
@@ -83,7 +83,7 @@ def read_user_me(
 
 
 @router.get("/{user_id}", response_model=schemas.User)
-def read_user_by_id(
+async def read_user_by_id(
         user_id: int,
         current_user: schemas.User = Depends(deps.get_current_active_user),
         db: Session = Depends(deps.get_db),
@@ -105,7 +105,7 @@ def read_user_by_id(
 
 
 @router.put("/{user_id}", response_model=schemas.User)
-def update_user(
+async def update_user(
         *,
         db: Session = Depends(deps.get_db),
         user_id: int,
@@ -123,7 +123,7 @@ def update_user(
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(
+async def delete_user(
         *,
         db: Session = Depends(deps.get_db),
         user_id: int,

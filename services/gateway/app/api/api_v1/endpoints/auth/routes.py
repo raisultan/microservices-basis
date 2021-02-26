@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.post('/access', response_model=schemas.AccessToken)
-def get_access_token(
+async def get_access_token(
         db: Session = Depends(deps.get_db),
         *,
         user: schemas.UserLoginForm,
@@ -43,7 +43,7 @@ def get_access_token(
 
 
 @router.post('/refresh', response_model=schemas.RefreshToken)
-def get_refresh_token(
+async def get_refresh_token(
         db: Session = Depends(deps.get_db),
         Authorize: AuthJWT = Depends()
 ) -> dict:
