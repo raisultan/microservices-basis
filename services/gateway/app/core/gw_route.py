@@ -39,7 +39,11 @@ def gw_route(
 
             method = scope['method'].lower()
             url = f'{service_url}{scope["path"]}'
-            headers = {'authorization': dict(request.headers).get('authorization') or ''}
+
+            if auth_header := request.headers.get('authorization'):
+                headers = {'authorization': auth_header}
+            else:
+                headers = {}
 
             try:
                 data = await request.json()
