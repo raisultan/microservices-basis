@@ -13,7 +13,7 @@ router = APIRouter()
     path='/api_v1/users',
     status_code=status.HTTP_200_OK,
     service_url=settings.USERS_SERVICE_URL,
-    response_model='app.schemas.UserRead',
+    response_model='app.schemas.User',
     is_response_list=True,
 )
 async def read_users(request: Request, response: Response) -> Any:
@@ -25,7 +25,7 @@ async def read_users(request: Request, response: Response) -> Any:
     path='/api_v1/users',
     status_code=status.HTTP_201_CREATED,
     service_url=settings.USERS_SERVICE_URL,
-    response_model='app.schemas.UserCreate',
+    response_model='app.schemas.User',
 )
 async def create_user(request: Request, response: Response) -> Any:
     pass
@@ -36,7 +36,7 @@ async def create_user(request: Request, response: Response) -> Any:
     path='/api_v1/users/me',
     status_code=status.HTTP_200_OK,
     service_url=settings.USERS_SERVICE_URL,
-    response_model='app.schemas.UserRead',
+    response_model='app.schemas.User',
 )
 async def read_user_me(request: Request, response: Response) -> Any:
     pass
@@ -47,7 +47,7 @@ async def read_user_me(request: Request, response: Response) -> Any:
     path='/api_v1/users/me',
     status_code=status.HTTP_200_OK,
     service_url=settings.USERS_SERVICE_URL,
-    response_model='app.schemas.UserUpdate',
+    response_model='app.schemas.User',
 )
 async def update_user_me(request: Request, response: Response) -> Any:
     pass
@@ -58,7 +58,7 @@ async def update_user_me(request: Request, response: Response) -> Any:
     path='/api_v1/users/{user_id}',
     status_code=status.HTTP_200_OK,
     service_url=settings.USERS_SERVICE_URL,
-    response_model='app.schemas.UserRead',
+    response_model='app.schemas.User',
 )
 async def read_user(request: Request, response: Response) -> Any:
     pass
@@ -69,7 +69,7 @@ async def read_user(request: Request, response: Response) -> Any:
     path='/api_v1/users/{user_id}',
     status_code=status.HTTP_200_OK,
     service_url=settings.USERS_SERVICE_URL,
-    response_model='app.schemas.UserUpdate',
+    response_model='app.schemas.User',
 )
 async def update_user(request: Request, response: Response) -> Any:
     pass

@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_400_BAD_REQUEST
 
 from app import crud, schemas
 from app.api.dependencies import deps
@@ -22,9 +23,15 @@ def get_access_token(
         password=user.password,
     )
     if not user:
-        raise HTTPException(status_code=400, detail=AuthError.INCORRECT_CREDS)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=AuthError.INCORRECT_CREDS,
+        )
     elif not crud.user.is_active(user):
-        raise HTTPException(status_code=400, detail=AuthError.INACTIVE_USER)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=AuthError.INACTIVE_USER,
+        )
 
     access_token = Authorize.create_access_token(subject=user.email)
     refresh_token = Authorize.create_refresh_token(subject=user.email)

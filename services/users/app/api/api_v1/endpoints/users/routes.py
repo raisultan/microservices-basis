@@ -1,9 +1,10 @@
 from typing import Any, List
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_400_BAD_REQUEST
 
 from app import crud, schemas
 from app.api.dependencies import deps
@@ -24,7 +25,7 @@ def read_users(
     return users
 
 
-@router.post("/", response_model=schemas.UserCreate)
+@router.post("/", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 def create_user(
         *,
         db: Session = Depends(deps.get_db),
@@ -35,7 +36,10 @@ def create_user(
 ) -> Any:
     user = crud.user.read_by_email(db, email=email)
     if user:
-        raise HTTPException(status_code=400, detail=UsersAPIError.ALREADY_EXISTS)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=UsersAPIError.ALREADY_EXISTS,
+        )
     user_in = schemas.UserCreate(
         password=password,
         email=email,
@@ -46,7 +50,7 @@ def create_user(
     return user
 
 
-@router.put("/me", response_model=schemas.UserUpdate)
+@router.put("/me", response_model=schemas.User)
 def update_user_me(
         *,
         db: Session = Depends(deps.get_db),
@@ -86,14 +90,22 @@ def read_user_by_id(
         db: Session = Depends(deps.get_db),
 ) -> Any:
     user = crud.user.read(db, id=user_id)
-    if user == current_user:
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=UsersAPIError.NOT_FOUND,
+        )
+    elif not crud.user.is_active(current_user):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=UsersAPIError.INACTIVE,
+        )
+    elif user == current_user:
         return user
-    if not crud.user.is_active(current_user):
-        raise HTTPException(status_code=400, detail=UsersAPIError.INACTIVE)
     return user
 
 
-@router.put("/{user_id}", response_model=schemas.UserUpdate)
+@router.put("/{user_id}", response_model=schemas.User)
 def update_user(
         *,
         db: Session = Depends(deps.get_db),
@@ -103,12 +115,15 @@ def update_user(
 ) -> Any:
     user = crud.user.read(db, id=user_id)
     if not user:
-        raise HTTPException(status_code=404, detail=UsersAPIError.NOT_FOUND)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=UsersAPIError.NOT_FOUND,
+        )
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
 
 
-@router.delete("/{user_id}", status_code=204)
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(
         *,
         db: Session = Depends(deps.get_db),
@@ -117,5 +132,8 @@ def delete_user(
 ) -> Any:
     user = crud.user.read(db, id=user_id)
     if not user:
-        raise HTTPException(status_code=404, detail=UsersAPIError.NOT_FOUND)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=UsersAPIError.NOT_FOUND,
+        )
     user = crud.user.delete(db, db_obj_id=user_id)
