@@ -4,7 +4,6 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
-from starlette.status import HTTP_400_BAD_REQUEST
 
 from app import crud, schemas
 from app.api.dependencies import deps
