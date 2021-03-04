@@ -75,10 +75,7 @@ def gw_route(
 
             response.status_code = status_code_from_service
 
-            if all([
-                status_code_from_service == status_code,
-                post_processing_func
-            ]):
+            if  post_processing_func:
                 post_processing_f = import_function(post_processing_func)
                 resp_data = post_processing_f(resp_data)
 
