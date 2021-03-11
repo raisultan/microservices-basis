@@ -38,7 +38,6 @@ Gateway itself implements centralized JWT authentication by providing endpoints 
 
 ```
 docker-compose build
-docker-compose run --rm users alembic upgrade head
 docker-compose up
 ```
 

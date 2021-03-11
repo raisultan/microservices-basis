@@ -27,7 +27,9 @@ services:
         <<: *server-tmpl
 
     users:
-        command: sh -c "uvicorn app.main:app --reload --host 0.0.0.0"
+        command: bash -c "while !</dev/tcp/db/5432; do sleep 1; done;
+                        alembic upgrade head;
+                        uvicorn app.main:app --reload --host 0.0.0.0"
         build:
             context: ./users
             dockerfile: Dockerfile
